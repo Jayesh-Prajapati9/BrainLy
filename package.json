@@ -1,0 +1,30 @@
+{
+  "name": "brainly",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "tsc -b && node ./dist/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Jayesh-Prajapati9/BrainLy.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Jayesh-Prajapati9/BrainLy/issues"
+  },
+  "homepage": "https://github.com/Jayesh-Prajapati9/BrainLy#readme",
+  "devDependencies": {
+    "typescript": "^5.8.2"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.5.0",
+    "@types/express": "^5.0.1",
+    "express": "^4.21.2",
+    "prisma": "^6.5.0"
+  }
+}
