@@ -4,6 +4,7 @@ import { PrismaClient } from "@prisma/client";
 import { userMiddleware } from "./middlewares/userMiddleware";
 import crypto from "crypto";
 import Jwt from "jsonwebtoken";
+import { z, ZodError } from "zod";
 
 const JWT_SECRET = process.env.JWT_SECRET || "";
 
@@ -16,34 +17,63 @@ app.use(Express.json());
 
 app.post("/api/v1/signup", async (req, res) => {
     const username = req.body.username;
-    const password = req.body.passowrd;
+    const password = req.body.password;
 
-    const hashPassword = crypto
-        .createHash("sha256")
-        .update(password)
-        .digest("hex");
+    const userValidation = z.object({
+        username: z
+            .string()
+            .min(5, { message: "Username must be 5 or more characters long" }),
+        password: z
+            .string()
+            .min(7, { message: "Password must be 7 or more characters long" }),
+    });
 
-    const response = await client.user.create({
-        data: {
+    try {
+        const isValid = userValidation.parse({
             username: username,
-            password: hashPassword,
-        },
-    });
-
-    if (!response) {
-        res.status(404).json({
-            message: "Error in DB",
+            password: password,
         });
-    }
 
-    res.status(200).json({
-        message: "You have signed up Succesfully",
-    });
+        const hashPassword = crypto
+            .createHash("sha256")
+            .update(password)
+            .digest("hex");
+
+        const response = await client.user.create({
+            data: {
+                username: username,
+                password: hashPassword,
+            },
+        });
+
+        if (!response) {
+            res.status(404).json({
+                message: "Error in DB",
+            });
+        }
+
+        res.status(200).json({
+            message: "You have signed up Succesfully",
+        });
+    } catch (error) {
+        if (error instanceof ZodError) {
+            console.log(error);
+            res.status(404).json({
+                message: error.issues[0].message,
+            });
+        } else {
+            console.log(error);
+
+            res.status(404).json({
+                message: error,
+            });
+        }
+    }
 });
 
 app.post("/api/v1/signin", async (req, res) => {
     const username = req.body.username;
-    const password = req.body.passowrd;
+    const password = req.body.password;
 
     const hashPassword = crypto
         .createHash("sha256")
@@ -71,6 +101,4 @@ app.post("/api/v1/signin", async (req, res) => {
     });
 });
 
-app.post("/api/v1/content", userMiddleware, async (req, res) => {
-    
-});
+app.post("/api/v1/content", userMiddleware, async (req, res) => {});
